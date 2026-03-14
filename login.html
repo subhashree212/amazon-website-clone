@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Amazon Sign-In</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:Arial,sans-serif;background:#f3f3f3;}
+
+/* NAV */
+.nav{background:#131921;display:flex;align-items:center;justify-content:center;padding:12px;gap:20px;}
+.nav-logo{color:white;font-size:1.8rem;font-weight:bold;letter-spacing:-1px;cursor:pointer;text-decoration:none;}
+.nav-logo span{color:#febd69;}
+
+/* MAIN */
+.main{display:flex;justify-content:center;align-items:flex-start;min-height:calc(100vh - 120px);padding:24px 16px;gap:20px;flex-wrap:wrap;}
+
+/* FORM CARD */
+.form-card{background:white;border:1px solid #ddd;border-radius:8px;padding:28px 32px;width:100%;max-width:360px;}
+.form-card h2{font-size:1.5rem;margin-bottom:20px;color:#111;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:13px;font-weight:bold;color:#111;margin-bottom:6px;}
+.form-group input{width:100%;padding:9px 10px;border:1px solid #888;border-radius:4px;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;}
+.form-group input:focus{border-color:#e77600;box-shadow:0 0 0 3px rgba(231,118,0,.25);}
+.form-group .hint{font-size:11px;color:#555;margin-top:4px;}
+.show-pwd{display:flex;align-items:center;gap:6px;font-size:13px;color:#111;cursor:pointer;margin-top:6px;}
+.show-pwd input{width:14px;height:14px;}
+
+.btn-primary{width:100%;background:#febd69;border:1px solid #a88734;border-radius:4px;padding:10px;font-size:14px;font-weight:bold;cursor:pointer;transition:background .2s;margin-top:4px;}
+.btn-primary:hover{background:#f3a847;}
+
+.divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:#777;font-size:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#ddd;}
+
+.btn-secondary{width:100%;background:#f0f0f0;border:1px solid #adb1b8;border-radius:4px;padding:9px;font-size:13px;cursor:pointer;transition:background .2s;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-secondary:hover{background:#e7e9ec;}
+.btn-secondary i{font-size:16px;}
+.btn-secondary i.fa-google{color:#ea4335;}
+.btn-secondary i.fa-facebook{color:#1877f2;}
+
+.terms{font-size:11px;color:#555;margin-top:16px;line-height:1.6;}
+.terms a{color:#0066c0;text-decoration:none;}.terms a:hover{text-decoration:underline;}
+
+.switch-link{text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid #eee;font-size:13px;color:#111;}
+.switch-link a{color:#0066c0;text-decoration:none;font-weight:bold;cursor:pointer;}.switch-link a:hover{text-decoration:underline;}
+
+.forgot-link{display:block;text-align:right;font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;cursor:pointer;}
+.forgot-link:hover{text-decoration:underline;}
+
+/* BENEFITS */
+.benefits{background:white;border:1px solid #ddd;border-radius:8px;padding:24px;width:100%;max-width:280px;height:fit-content;}
+.benefits h3{font-size:15px;font-weight:bold;margin-bottom:16px;color:#111;}
+.benefit-item{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;}
+.benefit-icon{width:36px;height:36px;background:#febd69;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
+.benefit-text h4{font-size:13px;font-weight:bold;color:#111;margin-bottom:2px;}
+.benefit-text p{font-size:12px;color:#555;}
+
+/* ERROR / SUCCESS */
+.error-msg{background:#fff8f0;border:1px solid #e77600;border-left:4px solid #e77600;border-radius:4px;padding:10px 12px;font-size:13px;color:#111;margin-bottom:16px;display:none;}
+.error-msg.show{display:block;}
+.success-msg{background:#f0fff4;border:1px solid #2e7d32;border-left:4px solid #2e7d32;border-radius:4px;padding:10px 12px;font-size:13px;color:#111;margin-bottom:16px;display:none;}
+.success-msg.show{display:block;}
+
+/* PASSWORD STRENGTH */
+.pwd-strength{margin-top:6px;display:none;}
+.pwd-strength.show{display:block;}
+.strength-bar{height:4px;border-radius:2px;background:#eee;margin-bottom:4px;}
+.strength-fill{height:100%;border-radius:2px;transition:width .3s,background .3s;}
+.strength-text{font-size:11px;}
+
+/* TOAST */
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-100px);background:#232f3e;color:white;padding:12px 24px;border-radius:6px;font-size:14px;z-index:9999;transition:transform .3s;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,.3);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.success i{color:#4caf50;}
+.toast.error i{color:#f44336;}
+
+/* FOOTER */
+footer{background:#232f3e;color:#ddd;text-align:center;padding:20px;font-size:12px;margin-top:40px;}
+footer a{color:#ddd;margin:0 8px;text-decoration:none;}.footer a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">amazon<span>.in</span></a>
+</nav>
+
+<div class="main">
+  <!-- FORM CARD -->
+  <div class="form-card" id="form-card">
+    <!-- LOGIN FORM -->
+    <div id="login-form">
+      <h2>Sign in</h2>
+      <div class="error-msg" id="login-error"><i class="fa-solid fa-triangle-exclamation"></i> <span id="login-error-text"></span></div>
+      <div class="form-group">
+        <label>Email or mobile number</label>
+        <input type="text" id="login-email" placeholder="Enter email or mobile"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pwd" placeholder="Enter password"/>
+        <a class="forgot-link" onclick="showForgot()">Forgot password?</a>
+        <label class="show-pwd"><input type="checkbox" onchange="togglePwd('login-pwd')"> Show password</label>
+      </div>
+      <button class="btn-primary" onclick="handleLogin()">Continue</button>
+      <div class="divider">or sign in with</div>
+      <button class="btn-secondary"><i class="fab fa-google"></i> Continue with Google</button>
+      <button class="btn-secondary"><i class="fab fa-facebook"></i> Continue with Facebook</button>
+      <div class="terms">By continuing, you agree to Amazon's <a href="#">Conditions of Use</a> and <a href="#">Privacy Notice</a>.</div>
+      <div class="switch-link">New to Amazon? <a onclick="switchForm('signup')">Create your Amazon account</a></div>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div id="signup-form" style="display:none;">
+      <h2>Create account</h2>
+      <div class="error-msg" id="signup-error"><i class="fa-solid fa-triangle-exclamation"></i> <span id="signup-error-text"></span></div>
+      <div class="success-msg" id="signup-success"><i class="fa-solid fa-check-circle"></i> Account created successfully!</div>
+      <div class="form-group">
+        <label>Your name</label>
+        <input type="text" id="signup-name" placeholder="First and last name"/>
+      </div>
+      <div class="form-group">
+        <label>Mobile number or email</label>
+        <input type="text" id="signup-email" placeholder="Mobile number or email"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="signup-pwd" placeholder="At least 6 characters" oninput="checkStrength()"/>
+        <div class="pwd-strength" id="pwd-strength">
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+          <span class="strength-text" id="strength-text"></span>
+        </div>
+        <label class="show-pwd"><input type="checkbox" onchange="togglePwd('signup-pwd')"> Show password</label>
+      </div>
+      <div class="form-group">
+        <label>Re-enter password</label>
+        <input type="password" id="signup-pwd2" placeholder="Re-enter password"/>
+      </div>
+      <button class="btn-primary" onclick="handleSignup()">Create your Amazon account</button>
+      <div class="terms">By creating an account, you agree to Amazon's <a href="#">Conditions of Use</a> and <a href="#">Privacy Notice</a>.</div>
+      <div class="switch-link">Already have an account? <a onclick="switchForm('login')">Sign in</a></div>
+    </div>
+
+    <!-- FORGOT PASSWORD -->
+    <div id="forgot-form" style="display:none;">
+      <h2>Password assistance</h2>
+      <p style="font-size:13px;color:#555;margin-bottom:16px;">Enter the email address or mobile number associated with your Amazon account.</p>
+      <div class="form-group">
+        <label>Email or mobile number</label>
+        <input type="text" id="forgot-email" placeholder="Enter email or mobile"/>
+      </div>
+      <button class="btn-primary" onclick="handleForgot()">Continue</button>
+      <div class="switch-link" style="margin-top:12px;"><a onclick="switchForm('login')">← Back to sign in</a></div>
+    </div>
+  </div>
+
+  <!-- BENEFITS -->
+  <div class="benefits">
+    <h3>Benefits of your free Amazon account</h3>
+    <div class="benefit-item">
+      <div class="benefit-icon">🚀</div>
+      <div class="benefit-text"><h4>Fast Delivery</h4><p>Free & fast delivery on millions of items with Prime</p></div>
+    </div>
+    <div class="benefit-item">
+      <div class="benefit-icon">📦</div>
+      <div class="benefit-text"><h4>Track Orders</h4><p>Track your orders and manage returns easily</p></div>
+    </div>
+    <div class="benefit-item">
+      <div class="benefit-icon">💳</div>
+      <div class="benefit-text"><h4>Secure Payments</h4><p>Multiple payment options with complete security</p></div>
+    </div>
+    <div class="benefit-item">
+      <div class="benefit-icon">❤️</div>
+      <div class="benefit-text"><h4>Wish List</h4><p>Save items and share your wish list with others</p></div>
+    </div>
+    <div class="benefit-item">
+      <div class="benefit-icon">🎬</div>
+      <div class="benefit-text"><h4>Prime Video</h4><p>Watch exclusive movies and shows with Prime</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="fa-solid fa-check-circle"></i><span id="toast-msg"></span></div>
+
+<footer>
+  <a href="#">Conditions of Use</a>
+  <a href="#">Privacy Notice</a>
+  <a href="#">Help</a>
+  <div style="margin-top:8px;">© 1996-2025, Amazon.com, Inc.</div>
+</footer>
+
+<script>
+// MOCK USER DB
+const users = JSON.parse(localStorage.getItem('amazon_users') || '[]');
+
+function switchForm(type) {
+  document.getElementById('login-form').style.display = type==='login' ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = type==='signup' ? 'block' : 'none';
+  document.getElementById('forgot-form').style.display = type==='forgot' ? 'block' : 'none';
+  clearErrors();
+}
+
+function showForgot() { switchForm('forgot'); }
+
+function togglePwd(id) {
+  const input = document.getElementById(id);
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function showError(id, msg) {
+  document.getElementById(id).classList.add('show');
+  document.getElementById(id + '-text').textContent = msg;
+}
+function clearErrors() {
+  ['login-error','signup-error'].forEach(id => document.getElementById(id).classList.remove('show'));
+}
+
+function showToast(msg, type='success') {
+  const toast = document.getElementById('toast');
+  toast.className = 'toast ' + type;
+  toast.querySelector('i').className = type==='success' ? 'fa-solid fa-check-circle' : 'fa-solid fa-triangle-exclamation';
+  document.getElementById('toast-msg').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pwd = document.getElementById('login-pwd').value;
+  clearErrors();
+  if (!email) { showError('login-error', 'Enter your email or mobile number.'); return; }
+  if (!pwd) { showError('login-error', 'Enter your password.'); return; }
+  const users = JSON.parse(localStorage.getItem('amazon_users') || '[]');
+  const user = users.find(u => u.email === email && u.password === pwd);
+  if (!user) { showError('login-error', 'Your password is incorrect or this account doesn\'t exist.'); return; }
+  localStorage.setItem('amazon_current_user', JSON.stringify(user));
+  showToast('Welcome back, ' + user.name + '! Redirecting...', 'success');
+  setTimeout(() => window.location.href = 'index.html', 1500);
+}
+
+function handleSignup() {
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const pwd = document.getElementById('signup-pwd').value;
+  const pwd2 = document.getElementById('signup-pwd2').value;
+  clearErrors();
+  if (!name) { showError('signup-error', 'Enter your name.'); return; }
+  if (!email) { showError('signup-error', 'Enter your email or mobile number.'); return; }
+  if (pwd.length < 6) { showError('signup-error', 'Password must be at least 6 characters.'); return; }
+  if (pwd !== pwd2) { showError('signup-error', 'Passwords do not match.'); return; }
+  const users = JSON.parse(localStorage.getItem('amazon_users') || '[]');
+  if (users.find(u => u.email === email)) { showError('signup-error', 'An account with this email already exists.'); return; }
+  users.push({ name, email, password: pwd });
+  localStorage.setItem('amazon_users', JSON.stringify(users));
+  document.getElementById('signup-success').classList.add('show');
+  showToast('Account created! Please sign in.', 'success');
+  setTimeout(() => switchForm('login'), 2000);
+}
+
+function handleForgot() {
+  const email = document.getElementById('forgot-email').value.trim();
+  if (!email) return;
+  showToast('If this account exists, a reset link has been sent.', 'success');
+  setTimeout(() => switchForm('login'), 2000);
+}
+
+function checkStrength() {
+  const pwd = document.getElementById('signup-pwd').value;
+  const bar = document.getElementById('pwd-strength');
+  const fill = document.getElementById('strength-fill');
+  const text = document.getElementById('strength-text');
+  bar.classList.add('show');
+  let score = 0;
+  if (pwd.length >= 6) score++;
+  if (pwd.length >= 10) score++;
+  if (/[A-Z]/.test(pwd)) score++;
+  if (/[0-9]/.test(pwd)) score++;
+  if (/[^A-Za-z0-9]/.test(pwd)) score++;
+  const levels = [
+    {w:'20%',bg:'#f44336',t:'Weak'},
+    {w:'40%',bg:'#ff9800',t:'Fair'},
+    {w:'60%',bg:'#ffc107',t:'Good'},
+    {w:'80%',bg:'#8bc34a',t:'Strong'},
+    {w:'100%',bg:'#4caf50',t:'Very Strong'},
+  ];
+  const l = levels[Math.min(score, 4)];
+  fill.style.width = l.w; fill.style.background = l.bg;
+  text.textContent = l.t; text.style.color = l.bg;
+}
+</script>
+</body>
+</html>
